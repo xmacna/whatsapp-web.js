@@ -1611,7 +1611,7 @@ class Client extends EventEmitter {
         let contact = await this.pupPage.evaluate((contactId) => {
             return window.WWebJS.getContact(contactId);
         }, contactId);
-
+        try {
             return ContactFactory.create(this, contact);
         } catch (error) {
             console.error(error);
