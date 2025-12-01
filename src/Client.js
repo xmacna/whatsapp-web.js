@@ -4,43 +4,20 @@ const EventEmitter = require("events");
 const puppeteer = require("puppeteer");
 const moduleRaid = require("@pedroslopez/moduleraid/moduleraid");
 
-const Util = require("./util/Util");
-const InterfaceController = require("./util/InterfaceController");
-const {
-    WhatsWebURL,
-    DefaultOptions,
-    Events,
-    WAState,
-} = require("./util/Constants");
-const { ExposeAuthStore } = require("./util/Injected/AuthStore/AuthStore");
-const { ExposeStore } = require("./util/Injected/Store");
-const {
-    ExposeLegacyAuthStore,
-} = require("./util/Injected/AuthStore/LegacyAuthStore");
-const { ExposeLegacyStore } = require("./util/Injected/LegacyStore");
-const { LoadUtils } = require("./util/Injected/Utils");
-const ChatFactory = require("./factories/ChatFactory");
-const ContactFactory = require("./factories/ContactFactory");
-const WebCacheFactory = require("./webCache/WebCacheFactory");
-const {
-    ClientInfo,
-    Message,
-    MessageMedia,
-    Contact,
-    Location,
-    Poll,
-    PollVote,
-    GroupNotification,
-    Label,
-    Call,
-    Buttons,
-    List,
-    Reaction,
-    Broadcast,
-    ScheduledEvent,
-} = require("./structures");
-const NoAuth = require("./authStrategies/NoAuth");
-const { exposeFunctionIfAbsent } = require("./util/Puppeteer");
+const Util = require('./util/Util');
+const InterfaceController = require('./util/InterfaceController');
+const { WhatsWebURL, DefaultOptions, Events, WAState, MessageTypes } = require('./util/Constants');
+const { ExposeAuthStore } = require('./util/Injected/AuthStore/AuthStore');
+const { ExposeStore } = require('./util/Injected/Store');
+const { ExposeLegacyAuthStore } = require('./util/Injected/AuthStore/LegacyAuthStore');
+const { ExposeLegacyStore } = require('./util/Injected/LegacyStore');
+const { LoadUtils } = require('./util/Injected/Utils');
+const ChatFactory = require('./factories/ChatFactory');
+const ContactFactory = require('./factories/ContactFactory');
+const WebCacheFactory = require('./webCache/WebCacheFactory');
+const { ClientInfo, Message, MessageMedia, Contact, Location, Poll, PollVote, GroupNotification, Label, Call, Buttons, List, Reaction, Broadcast, ScheduledEvent } = require('./structures');
+const NoAuth = require('./authStrategies/NoAuth');
+const {exposeFunctionIfAbsent} = require('./util/Puppeteer');
 
 /**
  * Starting point for interacting with the WhatsApp Web API
@@ -3090,7 +3067,7 @@ class Client extends EventEmitter {
     async getPollVotes(messageId) {
         const msg = await this.getMessageById(messageId);
         if (!msg) return [];
-        if (msg.type != 'poll_creation') throw 'Invalid usage! Can only be used with a pollCreation message';
+        if (msg.type != MessageTypes.POLL_CREATION) throw 'Invalid usage! Can only be used with a pollCreation message';
 
         const pollVotes = await this.pupPage.evaluate( async (msg) => {
             const msgKey = window.Store.MsgKey.fromString(msg.id._serialized);
