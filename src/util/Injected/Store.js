@@ -130,8 +130,15 @@ exports.ExposeStore = () => {
     window.Store.Settings = {
         ...window.require('WAWebUserPrefsGeneral'),
         ...window.require('WAWebUserPrefsNotifications'),
-        setPushname: window.require('WAWebSetPushnameConnAction').setPushname
     };
+    try {
+        const pushnameModule = window.require('WAWebSetPushnameConnAction');
+        if (pushnameModule?.setPushname) {
+            window.Store.Settings.setPushname = pushnameModule.setPushname;
+        }
+    } catch {
+        // Module may not exist in newer WhatsApp Web versions
+    }
     window.Store.NumberInfo = {
         ...window.require('WAPhoneUtils'),
         ...window.require('WAPhoneFindCC')
