@@ -324,7 +324,12 @@ class Client extends EventEmitter {
         // Check if page lost its listener registration state (e.g., after page navigation/reload)
         // If so, reset the client-side flag to allow re-registration
         // See: https://github.com/pedroslopez/whatsapp-web.js/issues/5717
-        const pageHasListeners = await this.pupPage.evaluate(() => !!window._authListenersRegistered);
+        let pageHasListeners = false;
+        try {
+            pageHasListeners = await this.pupPage.evaluate(() => !!window._authListenersRegistered);
+        } catch (_) {
+            // Execution context destroyed during navigation - will re-register on next inject
+        }
         if (!pageHasListeners) {
             this._authEventListenersInjected = false;
         }
@@ -448,7 +453,15 @@ class Client extends EventEmitter {
                 await this.authStrategy.afterBrowserInitialized();
                 this.lastLoggedOut = false;
             }
-            await this.inject();
+            try {
+                await this.inject();
+            } catch (err) {
+                // Execution context may be destroyed if page navigates again during inject
+                // This is expected and the next framenavigated event will retry
+                if (!err.message?.includes('Execution context was destroyed') && !err.message?.includes('detached')) {
+                    throw err;
+                }
+            }
         });
     }
 

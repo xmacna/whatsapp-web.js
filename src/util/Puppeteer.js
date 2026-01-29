@@ -9,9 +9,16 @@
  */
 async function exposeFunctionIfAbsent(page, name, fn) {
     // Check if the function exists in the page context
-    const existsInPage = await page.evaluate((name) => {
-        return !!window[name];
-    }, name);
+    let existsInPage;
+    try {
+        existsInPage = await page.evaluate((name) => {
+            return !!window[name];
+        }, name);
+    } catch (err) {
+        // Execution context was destroyed (page navigated) - skip silently
+        // The client will re-inject on the next initialization cycle
+        return;
+    }
 
     if (existsInPage) {
         return;
@@ -32,6 +39,9 @@ async function exposeFunctionIfAbsent(page, name, fn) {
                 // If removal fails, the binding is still usable from the previous expose
                 // This can happen in older Puppeteer versions
             }
+        } else if (err.message && (err.message.includes('Execution context was destroyed') || err.message.includes('detached'))) {
+            // Page navigated during expose - skip silently
+            return;
         } else {
             throw err;
         }
