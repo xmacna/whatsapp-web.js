@@ -13,10 +13,11 @@ exports.LoadUtils = () => {
         const chat = await window.WWebJS.getChat(chatId, { getAsModel: false });
         if (chat) {
             window.Store.WAWebStreamModel.Stream.markAvailable();
-            await window.Store.SendSeen.sendSeen({
-                chat: chat,
-                threadId: undefined
-            });         
+            try {
+                await window.Store.SendSeen.sendSeen({ chat: chat, threadId: undefined });
+            } catch {
+                await window.Store.SendSeen.sendSeen(chat);
+            }
             window.Store.WAWebStreamModel.Stream.markUnavailable();
             return true;
         }
