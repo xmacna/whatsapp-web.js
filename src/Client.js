@@ -124,6 +124,7 @@ class Client extends EventEmitter {
         }
 
         const needAuthentication = await this.pupPage.evaluate(async () => {
+            if (!window.AuthStore?.AppState) return true; // assume needs auth if AppState unavailable
             let state = window.AuthStore.AppState.state;
 
             if (state === 'OPENING' || state === 'UNLAUNCHED' || state === 'PAIRING') {
@@ -133,9 +134,9 @@ class Client extends EventEmitter {
                         if (state !== 'OPENING' && state !== 'UNLAUNCHED' && state !== 'PAIRING') {
                             window.AuthStore.AppState.off('change:state', waitTillInit);
                             r();
-                        } 
+                        }
                     });
-                }); 
+                });
             }
             state = window.AuthStore.AppState.state;
             return state == 'UNPAIRED' || state == 'UNPAIRED_IDLE';
@@ -341,7 +342,13 @@ class Client extends EventEmitter {
                 if (window._authListenersRegistered) return;
                 window._authListenersRegistered = true;
 
-                const appState = window.AuthStore.AppState;
+                const appState = window.AuthStore?.AppState;
+
+                if (!appState) {
+                    // AppState not available - skip listener registration
+                    // Will retry on next inject cycle
+                    return;
+                }
 
                 // Fix race condition: If hasSynced is already true (fast session restore),
                 // the change:hasSynced event will never fire. Check current state immediately.
@@ -486,7 +493,7 @@ class Client extends EventEmitter {
                 clearInterval(window.codeInterval); // remove existing interval
             }
             window.codeInterval = setInterval(async () => {
-                if (window.AuthStore.AppState.state != 'UNPAIRED' && window.AuthStore.AppState.state != 'UNPAIRED_IDLE') {
+                if (window.AuthStore?.AppState?.state != 'UNPAIRED' && window.AuthStore?.AppState?.state != 'UNPAIRED_IDLE') {
                     clearInterval(window.codeInterval);
                     return;
                 }
