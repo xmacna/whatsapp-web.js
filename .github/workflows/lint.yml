@@ -3,18 +3,23 @@ name: Lint
 on:
   push:
   pull_request:
+  workflow_dispatch:
 
 jobs:
   eslint:
     name: ESLint
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Install node v14
-      uses: actions/setup-node@v2
+    - uses: actions/checkout@v4
+    - name: Install Node 22
+      uses: actions/setup-node@v4
       with:
-        node-version: '14'
+        node-version: '22'
     - name: Install dependencies
-      run: npm install
+      env:
+        PUPPETEER_SKIP_DOWNLOAD: true
+      run: npm install --ignore-scripts
+    - name: Test fork behavior without a WhatsApp session
+      run: node --test test-offline/*.test.js
     - name: Run ESLint
       run: ./node_modules/.bin/eslint .

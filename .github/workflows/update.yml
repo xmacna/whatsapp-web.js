@@ -7,6 +7,7 @@ on:
 
 jobs:
   update:
+    if: github.repository == 'pedroslopez/whatsapp-web.js'
     runs-on: ubuntu-latest
     defaults:
       run:
