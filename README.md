@@ -1,3 +1,8 @@
+> **Fork XMACNA:** a `main` consolida a linha v7 de desenvolvimento. A produção
+> Olympus permanece na versão 1.33.2, SHA `28288f4353e039b25603fc6c6f813938d110efb8`.
+> Consulte [fonte, versão operacional e recuperação](docs/xmacna-fork.md) antes de
+> atualizar um consumidor. Esta consolidação não publicou pacote npm nem imagem.
+
 <div align="center">
     <br />
     <p>
